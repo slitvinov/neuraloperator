@@ -7,7 +7,7 @@ import sys
 import neuralop.mpu.comm as comm
 
 from .patching import MultigridPatching2D
-from .losses import LpLoss
+from .data_losses import LpLoss
 
 
 class Trainer:
@@ -139,9 +139,9 @@ class Trainer:
 
                 if self.amp_autocast:
                     with amp.autocast(enabled=True):
-                        loss = training_loss(out.float(), y)
+                        loss = training_loss(x, out.float(), y)
                 else:
-                    loss = training_loss(out.float(), y)
+                    loss = training_loss(x, out.float(), y)
 
                 if regularizer:
                     loss += regularizer.loss
@@ -255,7 +255,7 @@ class Trainer:
                     wandb.log({f'image_{log_prefix}': wandb.Image(img.unsqueeze(-1).cpu().numpy())}, commit=False)
                 
                 for loss_name, loss in loss_dict.items():
-                    errors[f'{log_prefix}_{loss_name}'] += loss(out, y).item()
+                    errors[f'{log_prefix}_{loss_name}'] += loss(x, out, y).item()
 
         del x, y, out
 

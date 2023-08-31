@@ -7,7 +7,7 @@ from neuralop import Trainer
 from neuralop.training import setup
 from neuralop.datasets import load_darcy_flow_small
 from neuralop.utils import get_wandb_api_key, count_params
-from neuralop import LpLoss, H1Loss
+from neuralop import LpLoss, H1Loss, DarcyEqnLoss
 
 from torch.nn.parallel import DistributedDataParallel as DDP
 
@@ -109,10 +109,16 @@ else:
 # Creating the losses
 l2loss = LpLoss(d=2, p=2)
 h1loss = H1Loss(d=2)
+equation_loss = DarcyEqnLoss()
 if config.opt.training_loss == 'l2':
     train_loss = l2loss
 elif config.opt.training_loss == 'h1':
     train_loss = h1loss
+elif config.opt.training_loss == 'equation':
+    train_loss = equation_loss
+elif config.opt.training_loss == 'combination':
+    # todo: implement a weighted loss function of equation and h1, where the weights are parameters
+    raise NotImplementedError()
 else:
     raise ValueError(f'Got training_loss={config.opt.training_loss} but expected one of ["l2", "h1"]')
 eval_losses={'h1': h1loss, 'l2': l2loss}

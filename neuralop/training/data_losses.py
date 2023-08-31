@@ -124,6 +124,11 @@ class LpLoss(object):
                           p=self.p, dim=-1, keepdim=False)
         ynorm = torch.norm(torch.flatten(y, start_dim=-self.d), p=self.p, dim=-1, keepdim=False)
 
+        if self.reductions == 'mean':
+            return torch.mean(diff / ynorm)
+        elif self.reductions == 'sum':
+            return torch.sum(diff / ynorm)
+
         diff = diff/ynorm
 
         if self.reduce_dims is not None:
@@ -131,7 +136,7 @@ class LpLoss(object):
             
         return diff
 
-    def __call__(self, x, y):
+    def __call__(self, _, x, y):
         return self.rel(x, y)
 
 
@@ -273,7 +278,7 @@ class H1Loss(object):
         return diff
 
 
-    def __call__(self, x, y, h=None):
+    def __call__(self, _, x, y, h=None):
         return self.rel(x, y, h=h)
 
 
