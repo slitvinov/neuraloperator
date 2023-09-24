@@ -34,6 +34,7 @@ lognorm_p = solve_gwf(lognorm_a,f);
 thresh_p = solve_gwf(thresh_a,f);
 
 %Plot coefficients and solutions
+fig = figure('visible', 'off');
 subplot(2,2,1)
 surf(X,Y,lognorm_a); 
 view(2); 
@@ -54,3 +55,4 @@ surf(X,Y,thresh_p);
 view(2); 
 shading interp;
 colorbar;
+saveas(fig, 'run.png')

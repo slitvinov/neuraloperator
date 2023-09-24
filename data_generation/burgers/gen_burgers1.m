@@ -24,7 +24,7 @@ end
 tspan = linspace(0,1,steps+1);
 x = linspace(0,1,s+1);
 for j=1:N
-    u0 = GRF1(s/2, 0, gamma, tau, sigma, "periodic");
+    u0 = GRF1(s/2, 0, gamma, tau, sigma);
     u = burgers1(u0, tspan, s, visc);
     
     u0eval = u0(x);
