@@ -1,4 +1,3 @@
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -22,25 +21,32 @@ np.random.seed(0)
 
 #Complex multiplication
 
+
 def compl_mul2d(a, b):
     op = partial(torch.einsum, "bctq,dctq->bdtq")
     return torch.stack([
         op(a[..., 0], b[..., 0]) - op(a[..., 1], b[..., 1]),
         op(a[..., 1], b[..., 0]) + op(a[..., 0], b[..., 1])
-    ], dim=-1)
+    ],
+                       dim=-1)
 
 
 class SpectralConv2d(nn.Module):
+
     def __init__(self, in_channels, out_channels, mode):
         super(SpectralConv2d, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.modes1 = mode #Number of Fourier modes to multiply, at most floor(N/2) + 1
+        self.modes1 = mode  #Number of Fourier modes to multiply, at most floor(N/2) + 1
         self.modes2 = mode
 
         self.scale = (1 / (in_channels * out_channels))
-        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, 2))
-        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, 2))
+        self.weights1 = nn.Parameter(
+            self.scale *
+            torch.rand(in_channels, out_channels, self.modes1, self.modes2, 2))
+        self.weights2 = nn.Parameter(
+            self.scale *
+            torch.rand(in_channels, out_channels, self.modes1, self.modes2, 2))
 
     def forward(self, x):
         batchsize = x.shape[0]
@@ -48,18 +54,28 @@ class SpectralConv2d(nn.Module):
         x_ft = torch.rfft(x, 2, normalized=True, onesided=True)
 
         # Multiply relevant Fourier modes
-        out_ft = torch.zeros(batchsize, self.in_channels,  x.size(-2), x.size(-1)//2 + 1, 2, device=x.device)
+        out_ft = torch.zeros(batchsize,
+                             self.in_channels,
+                             x.size(-2),
+                             x.size(-1) // 2 + 1,
+                             2,
+                             device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = \
             compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         out_ft[:, :, -self.modes1:, :self.modes2] = \
             compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
         #Return to physical space
-        x = torch.irfft(out_ft, 2, normalized=True, onesided=True, signal_sizes=( x.size(-2), x.size(-1)))
+        x = torch.irfft(out_ft,
+                        2,
+                        normalized=True,
+                        onesided=True,
+                        signal_sizes=(x.size(-2), x.size(-1)))
         return x
 
 
 class SimpleBlock2d(nn.Module):
+
     def __init__(self, modes):
         super(SimpleBlock2d, self).__init__()
 
@@ -68,7 +84,6 @@ class SimpleBlock2d(nn.Module):
         self.conv3 = SpectralConv2d(32, 64, modes=modes)
 
         self.pool = nn.MaxPool2d(2, 2)
-
 
         self.fc1 = nn.Linear(64 * 14 * 14, 120)
         self.fc2 = nn.Linear(120, 84)
@@ -89,7 +104,9 @@ class SimpleBlock2d(nn.Module):
 
         return x
 
+
 class Net2d(nn.Module):
+
     def __init__(self):
         super(Net2d, self).__init__()
 
@@ -119,11 +136,11 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
+        if stride != 1 or in_planes != self.expansion * planes:
             self.shortcut = nn.Sequential(
-                SpectralConv2d(in_planes, self.expansion*planes, modes=modes),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
+                SpectralConv2d(in_planes, self.expansion * planes,
+                               modes=modes),
+                nn.BatchNorm2d(self.expansion * planes))
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -132,22 +149,40 @@ class BasicBlock(nn.Module):
         out = F.relu(out)
         return out
 
+
 class ResNet(nn.Module):
+
     def __init__(self, block, num_blocks, num_classes=10):
         super(ResNet, self).__init__()
         self.in_planes = 32
 
         self.conv1 = SpectralConv2d(3, 32, modes=10)
         self.bn1 = nn.BatchNorm2d(32)
-        self.layer1 = self._make_layer(block, 32, num_blocks[0], stride=1, modes=3)
-        self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=1, modes=3)
-        self.layer3 = self._make_layer(block, 32, num_blocks[2], stride=1, modes=3)
-        self.layer4 = self._make_layer(block, 32, num_blocks[3], stride=1, modes=3)
-        self.linear1 = nn.Linear(32*64*block.expansion, num_classes)
+        self.layer1 = self._make_layer(block,
+                                       32,
+                                       num_blocks[0],
+                                       stride=1,
+                                       modes=3)
+        self.layer2 = self._make_layer(block,
+                                       32,
+                                       num_blocks[1],
+                                       stride=1,
+                                       modes=3)
+        self.layer3 = self._make_layer(block,
+                                       32,
+                                       num_blocks[2],
+                                       stride=1,
+                                       modes=3)
+        self.layer4 = self._make_layer(block,
+                                       32,
+                                       num_blocks[3],
+                                       stride=1,
+                                       modes=3)
+        self.linear1 = nn.Linear(32 * 64 * block.expansion, num_classes)
         # self.linear2 = nn.Linear(100, num_classes)
 
     def _make_layer(self, block, planes, num_blocks, stride, modes=10):
-        strides = [stride] + [1]*(num_blocks-1)
+        strides = [stride] + [1] * (num_blocks - 1)
         layers = []
         for stride in strides:
             layers.append(block(self.in_planes, planes, stride, modes))
@@ -173,6 +208,7 @@ class ResNet(nn.Module):
         # out = self.linear2(out)
         return out
 
+
 def ResNet18():
     return ResNet(BasicBlock, [3, 4, 23, 3])
 
@@ -187,23 +223,31 @@ def ResNet18():
 # testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=True)
 
 ## Cifar10
-transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+])
 
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                        download=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=100,
-                                          shuffle=True, num_workers=4)
+trainset = torchvision.datasets.CIFAR10(root='./data',
+                                        train=True,
+                                        download=True,
+                                        transform=transform)
+trainloader = torch.utils.data.DataLoader(trainset,
+                                          batch_size=100,
+                                          shuffle=True,
+                                          num_workers=4)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                       download=True, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=100,
-                                         shuffle=False, num_workers=4)
+testset = torchvision.datasets.CIFAR10(root='./data',
+                                       train=False,
+                                       download=True,
+                                       transform=transform)
+testloader = torch.utils.data.DataLoader(testset,
+                                         batch_size=100,
+                                         shuffle=False,
+                                         num_workers=4)
 
-classes = ('plane', 'car', 'bird', 'cat',
-           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
+classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse',
+           'ship', 'truck')
 
 # model = Net2d().cuda()
 model = ResNet18().cuda()
@@ -211,7 +255,9 @@ model = ResNet18().cuda()
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-4)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.75)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
+                                            step_size=10,
+                                            gamma=0.75)
 
 for epoch in range(50):  # loop over the dataset multiple times
     running_loss = 0.0
@@ -230,7 +276,7 @@ for epoch in range(50):  # loop over the dataset multiple times
 
         # print statistics
         running_loss += loss.item()
-        if i % 100 == 99:    # print every 2000 mini-batches
+        if i % 100 == 99:  # print every 2000 mini-batches
             print('[%d, %5d] loss: %.3f' %
                   (epoch + 1, i + 1, running_loss / 100))
             running_loss = 0.0
@@ -245,7 +291,7 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-print('Accuracy of the network on the 10000 test images: %f %%' % (
-    100 * correct / total))
+print('Accuracy of the network on the 10000 test images: %f %%' %
+      (100 * correct / total))
 
 torch.save(model, 'results/fourier_on_images_mnist_100')
