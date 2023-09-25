@@ -9,6 +9,7 @@ class GaussianRF:
 
     def __init__(self, size, alpha, tau):
         self.dim = 2
+        self.size = size
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
         ky = torch.hstack(
