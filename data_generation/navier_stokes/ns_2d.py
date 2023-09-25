@@ -7,8 +7,7 @@ import random
 
 class GaussianRF:
 
-    def __init__(self, size, alpha, tau):
-        self.size = size
+    def __init__(self):
         sigma = tau**(0.5 * (2 * alpha - 2))
         k_max = size // 2
         ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size)
@@ -18,7 +17,7 @@ class GaussianRF:
         self.sqrt_eig[0, 0] = 0.0
 
     def sample(self, N):
-        coeff = torch.randn(N, self.size, self.size, dtype=torch.cfloat)
+        coeff = torch.randn(N, s, s, dtype=torch.cfloat)
         coeff = self.sqrt_eig * coeff
         return torch.fft.ifftn(coeff, dim=(-1, -2)).real
 
