@@ -4,11 +4,6 @@ import scipy.io
 import numpy as np
 import random
 
-
-class GaussianRF:
-    def sample(self):
-
-
 torch.manual_seed(123456)
 np.random.seed(123456)
 random.seed(123456)
