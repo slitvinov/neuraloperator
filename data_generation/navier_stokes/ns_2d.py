@@ -27,7 +27,7 @@ class GaussianRF:
                                                      -1))).real
 
 
-def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
+def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
     N = w0.size()[-1]
     k_max = math.floor(N / 2.0)
     steps = math.ceil(T / delta_t)
