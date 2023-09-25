@@ -29,8 +29,7 @@ record_steps = 200
 a = np.zeros((N, s, s))
 u = np.zeros((N, s, s, record_steps))
 c = 0
-coeff = torch.randn(N, s, s, dtype=torch.cfloat)
-coeff = sqrt_eig * coeff
+coeff = torch.tensor(sqrt_eig) * torch.randn(N, s, s, dtype=torch.cfloat)
 w0 = torch.fft.ifftn(coeff, dim=(-1, -2)).real
 visc = 1e-3
 delta_t = 1e-4
