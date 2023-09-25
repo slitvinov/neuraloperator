@@ -77,7 +77,8 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
     return sol, sol_t
 
 
-s = 256
+# s = 256
+s = 32
 N = 20
 GRF = GaussianRF(s, alpha=2.5, tau=7)
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
