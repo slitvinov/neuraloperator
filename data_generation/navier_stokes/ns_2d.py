@@ -24,7 +24,7 @@ sqrt_eig[0, 0] = 0.0
 t = np.linspace(0, 1, s + 1)
 t = t[0:-1]
 X, Y = np.meshgrid(t, t, indexing='ij')
-f = 0.1 * (torch.sin(2 * math.pi * (X + Y)) + torch.cos(2 * math.pi * (X + Y)))
+f = 0.1 * (np.sin(2 * math.pi * (X + Y)) + np.cos(2 * math.pi * (X + Y)))
 record_steps = 200
 a = torch.zeros(N, s, s)
 u = torch.zeros(N, s, s, record_steps)
