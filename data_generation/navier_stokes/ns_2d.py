@@ -3,7 +3,7 @@ import math
 import scipy.io
 
 
-class GaussianRF(object):
+class GaussianRF:
 
     def __init__(self, size, alpha=2, tau=3):
         self.dim = 2
