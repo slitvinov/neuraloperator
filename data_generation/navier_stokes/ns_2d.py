@@ -12,8 +12,8 @@ random.seed(123456)
 s = 32
 T = 0.5
 N = 20
-alpha=2.5
-tau=7
+alpha = 2.5
+tau = 7
 sigma = tau**(0.5 * (2 * alpha - 2))
 k_max = s // 2
 ky = np.array([list(range(k_max)) + list(range(-k_max, 0))] * s)
