@@ -115,7 +115,7 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
     return sol, sol_t
 
 
-device = torch.device('cuda')
+device = torch.device('cpu')
 
 #Resolution
 s = 256
