@@ -17,14 +17,9 @@ class GaussianRF:
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
             (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
         self.sqrt_eig[0, 0] = 0.0
-        self.size = []
-        for j in range(self.dim):
-            self.size.append(size)
-        self.size = tuple(self.size)
-        print("self.size = ", self.size)
 
     def sample(self, N):
-        coeff = torch.randn(N, *self.size, dtype=torch.cfloat)
+        coeff = torch.randn(N, self.dim, self.dim, dtype=torch.cfloat)
         coeff = self.sqrt_eig * coeff
         return torch.fft.ifftn(coeff, dim=list(range(-1, -self.dim - 1,
                                                      -1))).real
