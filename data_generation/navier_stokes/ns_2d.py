@@ -81,7 +81,7 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
 # s = 256
 # T = 50
 s = 32
-T = 0.1
+T = 1
 
 N = 20
 GRF = GaussianRF(s, alpha=2.5, tau=7)
