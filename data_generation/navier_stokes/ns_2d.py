@@ -11,12 +11,12 @@ class GaussianRF:
         self.dim = 2
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
-        k_y = torch.hstack(
+        ky = torch.hstack(
             (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(size, 1)
-        k_x = ky.transpose(0, 1)
-        print(k_y.shape, k_y.shape)
+        kx = ky.transpose(0, 1)
+        print(ky.shape, ky.shape)
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
-            (4 * (math.pi**2) * (k_x**2 + k_y**2) + tau**2)**(-alpha / 2.0))
+            (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
         self.sqrt_eig[0, 0] = 0.0
         self.size = []
         for j in range(self.dim):
