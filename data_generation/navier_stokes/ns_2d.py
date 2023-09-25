@@ -12,7 +12,7 @@ class GaussianRF:
         self.size = size
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
-        ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size
+        ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size)
         kx = ky.T
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
             (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
@@ -34,8 +34,7 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
     if len(f_h.size()) < len(w_h.size()):
         f_h = torch.unsqueeze(f_h, 0)
     record_time = math.floor(steps / record_steps)
-    ky = torch.hstack(
-        (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(N, 1)
+    ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * N)
     kx = ky.T
     kx = kx[..., :k_max + 1]
     ky = ky[..., :k_max + 1]
