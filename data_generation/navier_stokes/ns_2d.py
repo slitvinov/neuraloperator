@@ -12,7 +12,7 @@ class GaussianRF:
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
         wavenumers = torch.hstack(
-            (torch.arange(0, k_max), torch.arange(-k_max, 0))).repeat(size, 1)
+            (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(size, 1)
         print(wavenumers)
         k_x = wavenumers.transpose(0, 1)
         k_y = wavenumers
