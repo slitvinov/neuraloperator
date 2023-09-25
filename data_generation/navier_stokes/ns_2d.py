@@ -6,10 +6,7 @@ import random
 
 
 class GaussianRF:
-    def sample(self, N):
-        coeff = torch.randn(N, s, s, dtype=torch.cfloat)
-        coeff = sqrt_eig * coeff
-        return torch.fft.ifftn(coeff, dim=(-1, -2)).real
+    def sample(self):
 
 
 torch.manual_seed(123456)
@@ -39,9 +36,10 @@ f = 0.1 * (torch.sin(2 * math.pi * (X + Y)) + torch.cos(2 * math.pi * (X + Y)))
 record_steps = 200
 a = torch.zeros(N, s, s)
 u = torch.zeros(N, s, s, record_steps)
-bsize = 20
 c = 0
-w0 = GRF.sample(bsize)
+coeff = torch.randn(N, s, s, dtype=torch.cfloat)
+coeff = sqrt_eig * coeff
+w0 = torch.fft.ifftn(coeff, dim=(-1, -2)).real
 N = w0.size()[-1]
 visc = 1e-3
 delta_t = 1e-4
