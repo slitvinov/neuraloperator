@@ -81,7 +81,7 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
 # s = 256
 # T = 50
 s = 32
-T = 1
+T = 0.5
 
 N = 20
 GRF = GaussianRF(s, alpha=2.5, tau=7)
@@ -101,7 +101,7 @@ for j in range(N // bsize):
     a[c:(c + bsize), ...] = w0
     u[c:(c + bsize), ...] = sol
     c += bsize
-    print("jc: ", j, c)
+    print("jc: ", j, c, torch.shape(w0), torch.shape(sol))
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': a.cpu().numpy(),
