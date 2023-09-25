@@ -6,12 +6,13 @@ import random
 
 
 class GaussianRF:
+
     def __init__(self, size, alpha, tau):
         self.dim = 2
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
-        wavenumers = torch.cat((torch.arange(start=0, end=k_max, step=1), \
-                                torch.arange(start=-k_max, end=0, step=1)), 0).repeat(size,1)
+        wavenumers = torch.hstack(
+            (torch.arange(0, k_max), torch.arange(-k_max, 0))).repeat(size, 1)
         k_x = wavenumers.transpose(0, 1)
         k_y = wavenumers
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
