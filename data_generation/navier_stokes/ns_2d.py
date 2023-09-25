@@ -101,7 +101,7 @@ for j in range(N // bsize):
     a[c:(c + bsize), ...] = w0
     u[c:(c + bsize), ...] = sol
     c += bsize
-    print("jc: ", j, c, torch.shape(w0), torch.shape(sol))
+    print("jc: ", j, c, w0.shape, sol.shape)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': a.cpu().numpy(),
