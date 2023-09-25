@@ -111,6 +111,7 @@ bsize = 20
 c = 0
 t0 = default_timer()
 for j in range(N // bsize):
+    print(j)
     #Sample random feilds
     w0 = GRF.sample(bsize)
     #Solve NS
