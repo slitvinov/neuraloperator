@@ -13,7 +13,7 @@ class GaussianRF:
         k_max = size // 2
         ky = torch.hstack(
             (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(size, 1)
-        kx = torch.transpose(ky)
+        kx = ky.T
         print(ky.shape, ky.shape)
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
             (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
