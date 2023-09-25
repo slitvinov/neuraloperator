@@ -11,7 +11,6 @@ random.seed(123456)
 # T = 50
 s = 32
 T = 0.5
-
 N = 20
 alpha=2.5
 tau=7
@@ -22,7 +21,6 @@ kx = ky.T
 sqrt_eig = (s**2) * math.sqrt(2.0) * sigma * (
     (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
 sqrt_eig[0, 0] = 0.0
-#Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
 t = torch.linspace(0, 1, s + 1)
 t = t[0:-1]
 X, Y = torch.meshgrid(t, t, indexing='ij')
@@ -37,7 +35,6 @@ w0 = torch.fft.ifftn(coeff, dim=(-1, -2)).real
 N = w0.size()[-1]
 visc = 1e-3
 delta_t = 1e-4
-k_max = math.floor(N / 2.0)
 steps = math.ceil(T / delta_t)
 w_h = torch.fft.rfft2(w0)
 f_h = torch.fft.rfft2(f)
