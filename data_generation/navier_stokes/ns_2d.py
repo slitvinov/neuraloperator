@@ -1,6 +1,8 @@
 import torch
 import math
 import scipy.io
+import numpy as np
+import random
 
 
 class GaussianRF:
@@ -78,6 +80,9 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
     return sol, sol_t
 
 
+torch.manual_seed(123456)
+np.random.seed(123456)
+random.seed(123456)
 # s = 256
 # T = 50
 s = 32
