@@ -34,18 +34,18 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
     if len(f_h.size()) < len(w_h.size()):
         f_h = torch.unsqueeze(f_h, 0)
     record_time = math.floor(steps / record_steps)
-    k_y = torch.cat((torch.arange(start=0, end=k_max, step=1),
+    ky = torch.cat((torch.arange(start=0, end=k_max, step=1),
                      torch.arange(start=-k_max, end=0, step=1)),
                     0).repeat(N, 1)
-    k_x = k_y.transpose(0, 1)
-    k_x = k_x[..., :k_max + 1]
-    k_y = k_y[..., :k_max + 1]
-    lap = 4 * (math.pi**2) * (k_x**2 + k_y**2)
+    kx = ky.transpose(0, 1)
+    kx = kx[..., :k_max + 1]
+    ky = ky[..., :k_max + 1]
+    lap = 4 * (math.pi**2) * (kx**2 + ky**2)
     lap[0, 0] = 1.0
     dealias = torch.unsqueeze(
         torch.logical_and(
-            torch.abs(k_y) <= (2.0 / 3.0) * k_max,
-            torch.abs(k_x) <= (2.0 / 3.0) * k_max).float(), 0)
+            torch.abs(ky) <= (2.0 / 3.0) * k_max,
+            torch.abs(kx) <= (2.0 / 3.0) * k_max).float(), 0)
     sol = torch.zeros(*w0.size(), record_steps)
     sol_t = torch.zeros(record_steps)
     c = 0
@@ -54,13 +54,13 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
         if j % 1000 == 0:
             print(j, steps)
         psi_h = w_h / lap
-        q = 2. * math.pi * k_y * 1j * psi_h
+        q = 2. * math.pi * ky * 1j * psi_h
         q = torch.fft.irfft2(q, s=(N, N))
-        v = -2. * math.pi * k_x * 1j * psi_h
+        v = -2. * math.pi * kx * 1j * psi_h
         v = torch.fft.irfft2(v, s=(N, N))
-        w_x = 2. * math.pi * k_x * 1j * w_h
+        w_x = 2. * math.pi * kx * 1j * w_h
         w_x = torch.fft.irfft2(w_x, s=(N, N))
-        w_y = 2. * math.pi * k_y * 1j * w_h
+        w_y = 2. * math.pi * ky * 1j * w_h
         w_y = torch.fft.irfft2(w_y, s=(N, N))
         F_h = torch.fft.rfft2(q * w_x + v * w_y)
         F_h = dealias * F_h
