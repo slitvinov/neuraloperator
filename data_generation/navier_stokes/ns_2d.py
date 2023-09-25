@@ -32,7 +32,6 @@ c = 0
 coeff = torch.randn(N, s, s, dtype=torch.cfloat)
 coeff = sqrt_eig * coeff
 w0 = torch.fft.ifftn(coeff, dim=(-1, -2)).real
-N = w0.size()[-1]
 visc = 1e-3
 delta_t = 1e-4
 steps = math.ceil(T / delta_t)
@@ -41,7 +40,7 @@ f_h = torch.fft.rfft2(f)
 if len(f_h.size()) < len(w_h.size()):
     f_h = torch.unsqueeze(f_h, 0)
 record_time = math.floor(steps / record_steps)
-ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * N)
+ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * s)
 kx = ky.T
 kx = kx[..., :k_max + 1]
 ky = ky[..., :k_max + 1]
@@ -60,13 +59,13 @@ for j in range(steps):
         print(j, steps)
     psi_h = w_h / lap
     q = 2. * math.pi * ky * 1j * psi_h
-    q = torch.fft.irfft2(q, s=(N, N))
+    q = torch.fft.irfft2(q, s=(s, s))
     v = -2. * math.pi * kx * 1j * psi_h
-    v = torch.fft.irfft2(v, s=(N, N))
+    v = torch.fft.irfft2(v, s=(s, s))
     w_x = 2. * math.pi * kx * 1j * w_h
-    w_x = torch.fft.irfft2(w_x, s=(N, N))
+    w_x = torch.fft.irfft2(w_x, s=(s, s))
     w_y = 2. * math.pi * ky * 1j * w_h
-    w_y = torch.fft.irfft2(w_y, s=(N, N))
+    w_y = torch.fft.irfft2(w_y, s=(s, s))
     F_h = torch.fft.rfft2(q * w_x + v * w_y)
     F_h = dealias * F_h
     w_h = (-delta_t * F_h + delta_t * f_h +
@@ -74,7 +73,7 @@ for j in range(steps):
                1.0 + 0.5 * delta_t * visc * lap)
     t += delta_t
     if (j + 1) % record_time == 0:
-        w = torch.fft.irfft2(w_h, s=(N, N))
+        w = torch.fft.irfft2(w_h, s=(s, s))
         sol[..., c] = w
         sol_t[c] = t
         c += 1
