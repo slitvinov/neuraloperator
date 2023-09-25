@@ -79,7 +79,10 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
 
 
 # s = 256
+# T = 50
 s = 32
+T = 0.1
+
 N = 20
 GRF = GaussianRF(s, alpha=2.5, tau=7)
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
@@ -94,7 +97,7 @@ bsize = 20
 c = 0
 for j in range(N // bsize):
     w0 = GRF.sample(bsize)
-    sol, sol_t = navier_stokes_2d(w0, f, 1e-3, 50.0, 1e-4, record_steps)
+    sol, sol_t = navier_stokes_2d(w0, f, 1e-3, T, 1e-4, record_steps)
     a[c:(c + bsize), ...] = w0
     u[c:(c + bsize), ...] = sol
     c += bsize
