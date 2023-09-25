@@ -14,7 +14,6 @@ class GaussianRF:
         ky = torch.hstack(
             (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(size, 1)
         kx = ky.T
-        print(ky.shape, ky.shape)
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
             (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
         self.sqrt_eig[0, 0] = 0.0
@@ -22,6 +21,7 @@ class GaussianRF:
         for j in range(self.dim):
             self.size.append(size)
         self.size = tuple(self.size)
+        print(self.size)
 
     def sample(self, N):
         coeff = torch.randn(N, *self.size, dtype=torch.cfloat)
