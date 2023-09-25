@@ -26,8 +26,6 @@ t = t[0:-1]
 X, Y = np.meshgrid(t, t, indexing='ij')
 f = 0.1 * (np.sin(2 * math.pi * (X + Y)) + np.cos(2 * math.pi * (X + Y)))
 record_steps = 200
-a = np.zeros((N, s, s))
-u = np.zeros((N, s, s, record_steps))
 c = 0
 coeff = torch.tensor(sqrt_eig) * torch.randn(N, s, s, dtype=torch.cfloat)
 w0 = torch.fft.ifftn(coeff, dim=(-1, -2)).real
@@ -74,7 +72,6 @@ for j in range(steps):
         sol[..., c] = w
         sol_t[c] = t
         c += 1
-print(a.dtype, u.dtype)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': w0.cpu().numpy(),
