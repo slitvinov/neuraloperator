@@ -4,8 +4,7 @@ import scipy.io
 
 
 class GaussianRF:
-
-    def __init__(self, size, alpha=2, tau=3):
+    def __init__(self, size, alpha, tau):
         self.dim = 2
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
