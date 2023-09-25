@@ -22,7 +22,6 @@ kx = ky.T
 sqrt_eig = (s**2) * math.sqrt(2.0) * sigma * (
     (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
 sqrt_eig[0, 0] = 0.0
-GRF = GaussianRF()
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
 t = torch.linspace(0, 1, s + 1)
 t = t[0:-1]
