@@ -27,6 +27,7 @@ class GaussianRF:
 
 def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
     N = w0.size()[-1]
+    print("N = ", N)
     k_max = math.floor(N / 2.0)
     steps = math.ceil(T / delta_t)
     w_h = torch.fft.rfft2(w0)
@@ -34,10 +35,9 @@ def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
     if len(f_h.size()) < len(w_h.size()):
         f_h = torch.unsqueeze(f_h, 0)
     record_time = math.floor(steps / record_steps)
-    ky = torch.cat((torch.arange(start=0, end=k_max, step=1),
-                     torch.arange(start=-k_max, end=0, step=1)),
-                    0).repeat(N, 1)
-    kx = ky.transpose(0, 1)
+    ky = torch.hstack(
+        (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(N, 1)
+    kx = ky.T
     kx = kx[..., :k_max + 1]
     ky = ky[..., :k_max + 1]
     lap = 4 * (math.pi**2) * (kx**2 + ky**2)
