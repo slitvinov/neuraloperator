@@ -26,8 +26,8 @@ t = t[0:-1]
 X, Y = np.meshgrid(t, t, indexing='ij')
 f = 0.1 * (np.sin(2 * math.pi * (X + Y)) + np.cos(2 * math.pi * (X + Y)))
 record_steps = 200
-a = torch.zeros(N, s, s)
-u = torch.zeros(N, s, s, record_steps)
+a = np.zeros((N, s, s))
+u = np.zeros((N, s, s, record_steps))
 c = 0
 coeff = torch.randn(N, s, s, dtype=torch.cfloat)
 coeff = sqrt_eig * coeff
