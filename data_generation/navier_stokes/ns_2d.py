@@ -31,7 +31,7 @@ s = 32
 T = 0.5
 
 N = 20
-GRF = GaussianRF(s, alpha=2.5, tau=7)
+GRF = GaussianRF()
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
 t = torch.linspace(0, 1, s + 1)
 t = t[0:-1]
