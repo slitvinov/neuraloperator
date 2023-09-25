@@ -4,6 +4,26 @@ import scipy.io
 import numpy as np
 import random
 
+
+class GaussianRF:
+
+    def __init__(self, size, alpha, tau):
+        self.dim = 2
+        self.size = size
+        sigma = tau**(0.5 * (2 * alpha - self.dim))
+        k_max = size // 2
+        ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size)
+        kx = ky.T
+        self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
+            (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
+        self.sqrt_eig[0, 0] = 0.0
+
+    def sample(self, N):
+        coeff = torch.randn(N, self.size, self.size, dtype=torch.cfloat)
+        coeff = self.sqrt_eig * coeff
+        return torch.fft.ifftn(coeff, dim=(-1, -2)).real
+
+
 torch.manual_seed(123456)
 np.random.seed(123456)
 random.seed(123456)
@@ -11,16 +31,9 @@ random.seed(123456)
 # T = 50
 s = 32
 T = 0.5
+
 N = 20
-alpha = 2.5
-tau = 7
-sigma = tau**(0.5 * (2 * alpha - self.dim))
-k_max = s // 2
-ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size)
-kx = ky.T
-sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
-    (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
-sqrt_eig[0, 0] = 0.0
+GRF = GaussianRF(s, alpha=2.5, tau=7)
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
 t = torch.linspace(0, 1, s + 1)
 t = t[0:-1]
@@ -29,18 +42,21 @@ f = 0.1 * (torch.sin(2 * math.pi * (X + Y)) + torch.cos(2 * math.pi * (X + Y)))
 record_steps = 200
 a = torch.zeros(N, s, s)
 u = torch.zeros(N, s, s, record_steps)
+bsize = 20
 c = 0
-coeff = torch.randn(N, self.size, self.size, dtype=torch.cfloat)
-coeff = sqrt_eig * coeff
-w0 = torch.fft.ifftn(coeff, dim=(-1, -2)).real
+w0 = GRF.sample(bsize)
+N = w0.size()[-1]
 visc = 1e-3
 delta_t = 1e-4
+k_max = math.floor(N / 2.0)
 steps = math.ceil(T / delta_t)
 w_h = torch.fft.rfft2(w0)
 f_h = torch.fft.rfft2(f)
 if len(f_h.size()) < len(w_h.size()):
     f_h = torch.unsqueeze(f_h, 0)
 record_time = math.floor(steps / record_steps)
+ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * N)
+kx = ky.T
 kx = kx[..., :k_max + 1]
 ky = ky[..., :k_max + 1]
 lap = 4 * (math.pi**2) * (kx**2 + ky**2)
