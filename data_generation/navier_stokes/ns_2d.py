@@ -6,19 +6,9 @@ import random
 
 
 class GaussianRF:
-
-    def __init__(self):
-        sigma = tau**(0.5 * (2 * alpha - 2))
-        k_max = s // 2
-        ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * s)
-        kx = ky.T
-        self.sqrt_eig = (s**2) * math.sqrt(2.0) * sigma * (
-            (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
-        self.sqrt_eig[0, 0] = 0.0
-
     def sample(self, N):
         coeff = torch.randn(N, s, s, dtype=torch.cfloat)
-        coeff = self.sqrt_eig * coeff
+        coeff = sqrt_eig * coeff
         return torch.fft.ifftn(coeff, dim=(-1, -2)).real
 
 
@@ -33,6 +23,13 @@ T = 0.5
 N = 20
 alpha=2.5
 tau=7
+sigma = tau**(0.5 * (2 * alpha - 2))
+k_max = s // 2
+ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * s)
+kx = ky.T
+sqrt_eig = (s**2) * math.sqrt(2.0) * sigma * (
+    (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
+sqrt_eig[0, 0] = 0.0
 GRF = GaussianRF()
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
 t = torch.linspace(0, 1, s + 1)
