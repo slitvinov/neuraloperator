@@ -12,8 +12,7 @@ class GaussianRF:
         self.size = size
         sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
-        ky = torch.hstack(
-            (torch.arange(k_max), torch.arange(-k_max, 0))).repeat(size, 1)
+        ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size
         kx = ky.T
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
             (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
