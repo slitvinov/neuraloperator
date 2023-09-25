@@ -39,8 +39,8 @@ f_h = torch.fft.rfft2(torch.tensor(f))
 if len(f_h.size()) < len(w_h.size()):
     f_h = torch.unsqueeze(f_h, 0)
 record_time = math.floor(steps / record_steps)
-kx = kx[..., :k_max + 1]
-ky = ky[..., :k_max + 1]
+kx = torch.tensor(kx[..., :k_max + 1])
+ky = torch.tensor(ky[..., :k_max + 1])
 lap = 4 * (math.pi**2) * (kx**2 + ky**2)
 lap[0, 0] = 1.0
 dealias = torch.unsqueeze(
