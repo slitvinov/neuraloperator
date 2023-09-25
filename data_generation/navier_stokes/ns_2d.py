@@ -35,7 +35,7 @@ visc = 1e-3
 delta_t = 1e-4
 steps = math.ceil(T / delta_t)
 w_h = torch.fft.rfft2(w0)
-f_h = torch.fft.rfft2(f)
+f_h = torch.fft.rfft2(torch.tensor(f))
 if len(f_h.size()) < len(w_h.size()):
     f_h = torch.unsqueeze(f_h, 0)
 record_time = math.floor(steps / record_steps)
