@@ -40,8 +40,6 @@ f_h = torch.fft.rfft2(f)
 if len(f_h.size()) < len(w_h.size()):
     f_h = torch.unsqueeze(f_h, 0)
 record_time = math.floor(steps / record_steps)
-ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * s)
-kx = ky.T
 kx = kx[..., :k_max + 1]
 ky = ky[..., :k_max + 1]
 lap = 4 * (math.pi**2) * (kx**2 + ky**2)
