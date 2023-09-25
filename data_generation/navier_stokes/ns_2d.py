@@ -16,14 +16,14 @@ alpha=2.5
 tau=7
 sigma = tau**(0.5 * (2 * alpha - 2))
 k_max = s // 2
-ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * s)
+ky = np.array([list(range(k_max)) + list(range(-k_max, 0))] * s)
 kx = ky.T
 sqrt_eig = (s**2) * math.sqrt(2.0) * sigma * (
     (4 * (math.pi**2) * (kx**2 + ky**2) + tau**2)**(-alpha / 2.0))
 sqrt_eig[0, 0] = 0.0
-t = torch.linspace(0, 1, s + 1)
+t = np.linspace(0, 1, s + 1)
 t = t[0:-1]
-X, Y = torch.meshgrid(t, t, indexing='ij')
+X, Y = np.meshgrid(t, t, indexing='ij')
 f = 0.1 * (torch.sin(2 * math.pi * (X + Y)) + torch.cos(2 * math.pi * (X + Y)))
 record_steps = 200
 a = torch.zeros(N, s, s)
