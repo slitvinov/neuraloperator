@@ -99,7 +99,7 @@ sol, sol_t = navier_stokes_2d(w0, f, 1e-3, T, 1e-4, record_steps)
 a[c:(c + bsize), ...] = w0
 u[c:(c + bsize), ...] = sol
 c += bsize
-print("jc: ", j, c, w0.shape, sol.shape)
+print("c: ", c, w0.shape, sol.shape)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': a.cpu().numpy(),
