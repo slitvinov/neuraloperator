@@ -21,7 +21,7 @@ class GaussianRF:
         for j in range(self.dim):
             self.size.append(size)
         self.size = tuple(self.size)
-        print(self.size)
+        print("self.size = ", self.size)
 
     def sample(self, N):
         coeff = torch.randn(N, *self.size, dtype=torch.cfloat)
