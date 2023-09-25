@@ -24,56 +24,6 @@ class GaussianRF:
         return torch.fft.ifftn(coeff, dim=(-1, -2)).real
 
 
-def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
-    N = w0.size()[-1]
-    print("N = ", N)
-    k_max = math.floor(N / 2.0)
-    steps = math.ceil(T / delta_t)
-    w_h = torch.fft.rfft2(w0)
-    f_h = torch.fft.rfft2(f)
-    if len(f_h.size()) < len(w_h.size()):
-        f_h = torch.unsqueeze(f_h, 0)
-    record_time = math.floor(steps / record_steps)
-    ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * N)
-    kx = ky.T
-    kx = kx[..., :k_max + 1]
-    ky = ky[..., :k_max + 1]
-    lap = 4 * (math.pi**2) * (kx**2 + ky**2)
-    lap[0, 0] = 1.0
-    dealias = torch.unsqueeze(
-        torch.logical_and(
-            torch.abs(ky) <= (2.0 / 3.0) * k_max,
-            torch.abs(kx) <= (2.0 / 3.0) * k_max).float(), 0)
-    sol = torch.zeros(*w0.size(), record_steps)
-    sol_t = torch.zeros(record_steps)
-    c = 0
-    t = 0.0
-    for j in range(steps):
-        if j % 1000 == 0:
-            print(j, steps)
-        psi_h = w_h / lap
-        q = 2. * math.pi * ky * 1j * psi_h
-        q = torch.fft.irfft2(q, s=(N, N))
-        v = -2. * math.pi * kx * 1j * psi_h
-        v = torch.fft.irfft2(v, s=(N, N))
-        w_x = 2. * math.pi * kx * 1j * w_h
-        w_x = torch.fft.irfft2(w_x, s=(N, N))
-        w_y = 2. * math.pi * ky * 1j * w_h
-        w_y = torch.fft.irfft2(w_y, s=(N, N))
-        F_h = torch.fft.rfft2(q * w_x + v * w_y)
-        F_h = dealias * F_h
-        w_h = (-delta_t * F_h + delta_t * f_h +
-               (1.0 - 0.5 * delta_t * visc * lap) * w_h) / (
-                   1.0 + 0.5 * delta_t * visc * lap)
-        t += delta_t
-        if (j + 1) % record_time == 0:
-            w = torch.fft.irfft2(w_h, s=(N, N))
-            sol[..., c] = w
-            sol_t[c] = t
-            c += 1
-    return sol, sol_t
-
-
 torch.manual_seed(123456)
 np.random.seed(123456)
 random.seed(123456)
@@ -95,14 +45,57 @@ u = torch.zeros(N, s, s, record_steps)
 bsize = 20
 c = 0
 w0 = GRF.sample(bsize)
+N = w0.size()[-1]
+visc = 1e-3
+delta_t = 1e-4
+k_max = math.floor(N / 2.0)
+steps = math.ceil(T / delta_t)
+w_h = torch.fft.rfft2(w0)
+f_h = torch.fft.rfft2(f)
+if len(f_h.size()) < len(w_h.size()):
+    f_h = torch.unsqueeze(f_h, 0)
+record_time = math.floor(steps / record_steps)
+ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * N)
+kx = ky.T
+kx = kx[..., :k_max + 1]
+ky = ky[..., :k_max + 1]
+lap = 4 * (math.pi**2) * (kx**2 + ky**2)
+lap[0, 0] = 1.0
+dealias = torch.unsqueeze(
+    torch.logical_and(
+        torch.abs(ky) <= (2.0 / 3.0) * k_max,
+        torch.abs(kx) <= (2.0 / 3.0) * k_max).float(), 0)
+sol = torch.zeros(*w0.size(), record_steps)
+sol_t = torch.zeros(record_steps)
+c = 0
+t = 0.0
+for j in range(steps):
+    if j % 1000 == 0:
+        print(j, steps)
+    psi_h = w_h / lap
+    q = 2. * math.pi * ky * 1j * psi_h
+    q = torch.fft.irfft2(q, s=(N, N))
+    v = -2. * math.pi * kx * 1j * psi_h
+    v = torch.fft.irfft2(v, s=(N, N))
+    w_x = 2. * math.pi * kx * 1j * w_h
+    w_x = torch.fft.irfft2(w_x, s=(N, N))
+    w_y = 2. * math.pi * ky * 1j * w_h
+    w_y = torch.fft.irfft2(w_y, s=(N, N))
+    F_h = torch.fft.rfft2(q * w_x + v * w_y)
+    F_h = dealias * F_h
+    w_h = (-delta_t * F_h + delta_t * f_h +
+           (1.0 - 0.5 * delta_t * visc * lap) * w_h) / (
+               1.0 + 0.5 * delta_t * visc * lap)
+    t += delta_t
+    if (j + 1) % record_time == 0:
+        w = torch.fft.irfft2(w_h, s=(N, N))
+        sol[..., c] = w
+        sol_t[c] = t
+        c += 1
 sol, sol_t = navier_stokes_2d(w0, f, 1e-3, T, 1e-4, record_steps)
-a[c:(c + bsize), ...] = w0
-u[c:(c + bsize), ...] = sol
-c += bsize
-print("c: ", c, w0.shape, sol.shape)
 scipy.io.savemat('ns_data.mat',
                  mdict={
-                     'a': a.cpu().numpy(),
-                     'u': u.cpu().numpy(),
+                     'a': w0.cpu().numpy(),
+                     'u': sol.cpu().numpy(),
                      't': sol_t.cpu().numpy()
                  })
