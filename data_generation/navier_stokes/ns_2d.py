@@ -5,25 +5,16 @@ import scipy.io
 
 class GaussianRF(object):
 
-    def __init__(self,
-                 size,
-                 alpha=2,
-                 tau=3,
-                 sigma=None,
-                 boundary="periodic",
-                 device=None):
+    def __init__(self, size, alpha=2, tau=3):
         self.dim = 2
-        self.device = device
-        if sigma is None:
-            sigma = tau**(0.5 * (2 * alpha - self.dim))
+        sigma = tau**(0.5 * (2 * alpha - self.dim))
         k_max = size // 2
-        wavenumers = torch.cat((torch.arange(start=0, end=k_max, step=1, device=device), \
-                                torch.arange(start=-k_max, end=0, step=1, device=device)), 0).repeat(size,1)
+        wavenumers = torch.cat((torch.arange(start=0, end=k_max, step=1), \
+                                torch.arange(start=-k_max, end=0, step=1)), 0).repeat(size,1)
         k_x = wavenumers.transpose(0, 1)
         k_y = wavenumers
         self.sqrt_eig = (size**2) * math.sqrt(2.0) * sigma * (
-            (4 * (math.pi**2) *
-             (k_x**2 + k_y**2) + tau**2)**(-alpha / 2.0))
+            (4 * (math.pi**2) * (k_x**2 + k_y**2) + tau**2)**(-alpha / 2.0))
         self.sqrt_eig[0, 0] = 0.0
         self.size = []
         for j in range(self.dim):
@@ -31,10 +22,7 @@ class GaussianRF(object):
         self.size = tuple(self.size)
 
     def sample(self, N):
-        coeff = torch.randn(N,
-                            *self.size,
-                            dtype=torch.cfloat,
-                            device=self.device)
+        coeff = torch.randn(N, *self.size, dtype=torch.cfloat)
         coeff = self.sqrt_eig * coeff
         return torch.fft.ifftn(coeff, dim=list(range(-1, -self.dim - 1,
                                                      -1))).real
@@ -49,10 +37,9 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
     if len(f_h.size()) < len(w_h.size()):
         f_h = torch.unsqueeze(f_h, 0)
     record_time = math.floor(steps / record_steps)
-    k_y = torch.cat(
-        (torch.arange(start=0, end=k_max, step=1, device=w0.device),
-         torch.arange(start=-k_max, end=0, step=1, device=w0.device)),
-        0).repeat(N, 1)
+    k_y = torch.cat((torch.arange(start=0, end=k_max, step=1),
+                     torch.arange(start=-k_max, end=0, step=1)),
+                    0).repeat(N, 1)
     k_x = k_y.transpose(0, 1)
     k_x = k_x[..., :k_max + 1]
     k_y = k_y[..., :k_max + 1]
@@ -62,8 +49,8 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
         torch.logical_and(
             torch.abs(k_y) <= (2.0 / 3.0) * k_max,
             torch.abs(k_x) <= (2.0 / 3.0) * k_max).float(), 0)
-    sol = torch.zeros(*w0.size(), record_steps, device=w0.device)
-    sol_t = torch.zeros(record_steps, device=w0.device)
+    sol = torch.zeros(*w0.size(), record_steps)
+    sol_t = torch.zeros(record_steps)
     c = 0
     t = 0.0
     for j in range(steps):
@@ -90,12 +77,11 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
     return sol, sol_t
 
 
-device = torch.device('cpu')
 s = 256
 N = 20
-GRF = GaussianRF(s, alpha=2.5, tau=7, device=device)
+GRF = GaussianRF(s, alpha=2.5, tau=7)
 #Forcing function: 0.1*(sin(2pi(x+y)) + cos(2pi(x+y)))
-t = torch.linspace(0, 1, s + 1, device=device)
+t = torch.linspace(0, 1, s + 1)
 t = t[0:-1]
 X, Y = torch.meshgrid(t, t, indexing='ij')
 f = 0.1 * (torch.sin(2 * math.pi * (X + Y)) + torch.cos(2 * math.pi * (X + Y)))
