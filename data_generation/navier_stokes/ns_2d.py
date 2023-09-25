@@ -53,7 +53,8 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
     c = 0
     t = 0.0
     for j in range(steps):
-        print(j, steps)
+        if j % 1000 == 0:
+            print(j, steps)
         psi_h = w_h / lap
         q = 2. * math.pi * k_y * 1j * psi_h
         q = torch.fft.irfft2(q, s=(N, N))
@@ -92,13 +93,12 @@ u = torch.zeros(N, s, s, record_steps)
 bsize = 20
 c = 0
 for j in range(N // bsize):
-    print(j)
     w0 = GRF.sample(bsize)
     sol, sol_t = navier_stokes_2d(w0, f, 1e-3, 50.0, 1e-4, record_steps)
     a[c:(c + bsize), ...] = w0
     u[c:(c + bsize), ...] = sol
     c += bsize
-    print(j, c)
+    print("jc: ", j, c)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': a.cpu().numpy(),
