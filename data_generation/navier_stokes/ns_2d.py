@@ -92,7 +92,6 @@ for j in range(steps):
         sol[..., c] = w
         sol_t[c] = t
         c += 1
-sol, sol_t = navier_stokes_2d(w0, f, 1e-3, T, 1e-4, record_steps)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': w0.cpu().numpy(),
