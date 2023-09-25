@@ -22,10 +22,7 @@ class GaussianRF:
     def sample(self, N):
         coeff = torch.randn(N, self.size, self.size, dtype=torch.cfloat)
         coeff = self.sqrt_eig * coeff
-        print("preved:", list(range(-1, -self.dim - 1,
-                                                     -1)))
-        return torch.fft.ifftn(coeff, dim=list(range(-1, -self.dim - 1,
-                                                     -1))).real
+        return torch.fft.ifftn(coeff, dim=(-1, -2)).real
 
 
 def navier_stokes_2d(w0, f, visc, T, delta_t, record_steps):
