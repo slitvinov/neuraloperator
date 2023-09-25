@@ -94,13 +94,12 @@ a = torch.zeros(N, s, s)
 u = torch.zeros(N, s, s, record_steps)
 bsize = 20
 c = 0
-for j in range(N // bsize):
-    w0 = GRF.sample(bsize)
-    sol, sol_t = navier_stokes_2d(w0, f, 1e-3, T, 1e-4, record_steps)
-    a[c:(c + bsize), ...] = w0
-    u[c:(c + bsize), ...] = sol
-    c += bsize
-    print("jc: ", j, c, w0.shape, sol.shape)
+w0 = GRF.sample(bsize)
+sol, sol_t = navier_stokes_2d(w0, f, 1e-3, T, 1e-4, record_steps)
+a[c:(c + bsize), ...] = w0
+u[c:(c + bsize), ...] = sol
+c += bsize
+print("jc: ", j, c, w0.shape, sol.shape)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': a.cpu().numpy(),
