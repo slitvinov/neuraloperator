@@ -74,6 +74,7 @@ for j in range(steps):
         sol[..., c] = w
         sol_t[c] = t
         c += 1
+print(a.dtype, u.dtype)
 scipy.io.savemat('ns_data.mat',
                  mdict={
                      'a': w0.cpu().numpy(),
