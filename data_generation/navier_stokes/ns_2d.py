@@ -8,9 +8,8 @@ import random
 class GaussianRF:
 
     def __init__(self, size, alpha, tau):
-        self.dim = 2
         self.size = size
-        sigma = tau**(0.5 * (2 * alpha - self.dim))
+        sigma = tau**(0.5 * (2 * alpha - 2))
         k_max = size // 2
         ky = torch.tensor([list(range(k_max)) + list(range(-k_max, 0))] * size)
         kx = ky.T
