@@ -54,6 +54,7 @@ def navier_stokes_2d(w0, f, visc, T, delta_t=1e-4, record_steps=1):
     c = 0
     t = 0.0
     for j in range(steps):
+        print(j, steps)
         psi_h = w_h / lap
         q = 2. * math.pi * k_y * 1j * psi_h
         q = torch.fft.irfft2(q, s=(N, N))
