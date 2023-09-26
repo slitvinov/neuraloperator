@@ -17,9 +17,9 @@ for k = 1:length(pathes)
   pcolor(fields{k});
   shading('flat');  
   colorbar();
-  print("-S1200,900", pathes{k})
+  print('-S1200,900', pathes{k})
 end
 clf(fig);
 contour(u, 'linecolor', 'black');
 axis('equal');
-print("-S1200,900", "contour.png")
+print('-S1200,900', 'contour.png')
