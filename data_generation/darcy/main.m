@@ -20,6 +20,8 @@ fields = {lognorm_a, lognorm_p, thresh_a, thresh_p};
 fig = figure('visible', 'off');
 for k = 1:4
   clf(fig);
-  pcolor(field{k});
+  pcolor(fields{k});
+  shading interp;
+  axis('equal');
   saveas(fig, pathes{k});
 end
