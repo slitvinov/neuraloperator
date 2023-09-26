@@ -11,8 +11,6 @@ f = ones(s, s);
 
 lognorm_p = solve_gwf(lognorm_a, f);
 thresh_p = solve_gwf(thresh_a, f);
-
-%Plot coefficients and solutions
 [X, Y] = meshgrid(linspace(0, 1, s));
 pathes = {'lognorm_a.png', 'lognorm_p.png', 'thresh_a.png', ...
 	  'thresh_p.png'};
