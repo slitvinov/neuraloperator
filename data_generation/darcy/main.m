@@ -16,10 +16,10 @@ thresh_p = solve_gwf(thresh_a, f);
 [X, Y] = meshgrid(linspace(0, 1, s));
 pathes = {'lognorm_a.png', 'lognorm_p.png', 'thresh_a.png', ...
 	  'thresh_p.png'};
-field = {lognorm_a, lognorm_p, thresh_a, thresh_p};
+fields = {lognorm_a, lognorm_p, thresh_a, thresh_p};
 fig = figure('visible', 'off');
 for k = 1:4
   clf(fig);
   pcolor(field{k});
-  saveas(fig, path{k})
+  saveas(fig, pathes{k});
 end
