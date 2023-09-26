@@ -1,25 +1,25 @@
-s = 256;
+rand('state', 123456);
+s = 421;
 alpha = 2;
 tau = 3;
 norm_a = GRF(alpha, tau, s);
-lognorm_a = exp(norm_a);
-
-thresh_a = zeros(s, s);
-thresh_a(norm_a >= 0) = 12;
-thresh_a(norm_a < 0) = 4;
+a = exp(norm_a);
 f = ones(s, s);
-
-lognorm_p = solve_gwf(lognorm_a, f);
-thresh_p = solve_gwf(thresh_a, f);
+u = solve_gwf(a, f);
 [X, Y] = meshgrid(linspace(0, 1, s));
-pathes = {'lognorm_a.png', 'lognorm_p.png', 'thresh_a.png', ...
-	  'thresh_p.png'};
-fields = {lognorm_a, lognorm_p, thresh_a, thresh_p};
+pathes = {'a.png', 'u.png'};
+fields = {a, u};
 fig = figure('visible', 'off');
-for k = 1:4
+for k = 1:length(pathes)
   clf(fig);
-  pcolor(fields{k});
-  shading interp;
+  colormap('jet');
   axis('equal');
-  saveas(fig, pathes{k});
+  pcolor(fields{k});
+  shading('flat');  
+  colorbar();
+  print("-S1200,900", pathes{k})
 end
+clf(fig);
+contour(u, 'linecolor', 'black');
+axis('equal');
+print("-S1200,900", "contour.png")
