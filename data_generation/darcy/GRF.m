@@ -4,5 +4,5 @@ function U = GRF(alpha,tau,s)
   coef = tau^(alpha-1).*(pi^2*(K1.^2+K2.^2) + tau^2).^(-alpha/2);
   L = s*coef.*xi;
   L(1, 1) = 0;
-  U = idct2(L);
+  U = idct(idct(L, s).', s).';
 end
